@@ -7,7 +7,7 @@ library(scales)
 windowsFonts(tw_cen_mt = windowsFont("Tw Cen MT"))
 
 # Loading the data
-load("LeukError.RData")
+load("data.RData")
 ls() # To figure out name of the object in which data is stored
 
 # Checking the dimensions of the data, names of samples and names of gene
@@ -45,11 +45,13 @@ prop_explained <- cumsum(eigen_vals) / sum(eigen_vals)
 prop_explained[1:10]
 max(which(prop_explained <= 0.9))
 
+# Scoring the observations on the first two PCs
 scores <- scale(gene_exp, center = TRUE, scale = FALSE) %*% eigen_vecs[, 1:2]
 scores <- as.data.frame(scores)
 scores$labels <- labs
 scores$sample_num <- rownames(scores)
 
+# Initial Bi-plot
 ggplot2::ggplot(scores, ggplot2::aes(x = -V1, y = V2, colour = labels)) +
   ggplot2::geom_point(size = 3) +
   ggplot2::theme_minimal(base_family = "tw_cen_mt") +
@@ -58,8 +60,8 @@ ggplot2::ggplot(scores, ggplot2::aes(x = -V1, y = V2, colour = labels)) +
   ggrepel::geom_text_repel(ggplot2::aes(x = -V1, y = V2, label = sample_num),
                            inherit.aes = FALSE)
 
+# Recreating the bi-plot with (possibly) mislabelled sample IDs
 score_labs <- subset(scores, sample_num %in% c("19", "10", "2", "35"))
-
 ggplot2::ggplot(scores, ggplot2::aes(x = -V1, y = V2, colour = labels)) +
   ggplot2::geom_point(size = 3) +
   ggplot2::theme_minimal(base_family = "tw_cen_mt") +
